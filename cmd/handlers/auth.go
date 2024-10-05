@@ -1,27 +1,37 @@
 package handlers
 
-// import (
-//     "net/http"
-//     "github.com/labstack/echo/v4"
-// )
+import (
+	"RPN/cmd/models"
+	"RPN/cmd/utils"
+	"net/http"
 
-// // Login handles user login and returns JWT token
-// func Login(c echo.Context) error {
-//     //username := c.FormValue("username")
-//     //password := c.FormValue("password")
+	"github.com/labstack/echo/v4"
+)
+	
 
-//     // در اینجا باید اعتبارسنجی کاربر انجام شود
-//     userID := 1  // فرض کنید این ID کاربر است
+type User struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
 
-//     // تولید توکن JWT
-//     token, err := "x"//services.GenerateJWT(uint(userID))
-//     if err != nil {
-//         return c.JSON(http.StatusInternalServerError, map[string]string{
-//             "message": "could not generate token",
-//         })
-//     }
+func Registration(c echo.Context) error {
+	var user User
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid input")
+	}
 
-//     return c.JSON(http.StatusOK, map[string]string{
-//         "token": token,
-//     })
-// }
+	if !utils.ValidatePassword(user.Password) {
+		return c.JSON(http.StatusBadRequest, "password invalid")
+	}
+
+	userexist,err := models.UsernameExist(user.Username)
+	if err  != nil || userexist{
+		return c.JSON(http.StatusBadRequest, "Username already used")
+	}else if !userexist {
+		err = models.CreateUser(user.Username, user.Password)
+		if err != nil {
+            return c.JSON(http.StatusInternalServerError, "Failed to create user")
+        }
+	} 
+	return c.JSON(http.StatusCreated, "User registered successfully")
+}

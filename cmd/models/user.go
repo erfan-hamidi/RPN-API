@@ -1,7 +1,10 @@
 package models
 
 import (
-	"database/sql"
+	"RPN/cmd/db"
+
+	"golang.org/x/crypto/bcrypt"
+	//"database/sql"
 )
 
 
@@ -12,8 +15,9 @@ type User struct {
     IsAdmin   bool      `json:"admin"` // For admin identification
 }
 
-func FindUserByUsername(db *sql.DB, username string) (*User, error) {
+func FindUserByUsername(username string) (*User, error) {
     var user User
+    db := db.GetDB()
     row := db.QueryRow("SELECT * FROM users WHERE username=$1", username)
     
     err := row.Scan(&user.Username, &user.Password,)
@@ -25,7 +29,27 @@ func FindUserByUsername(db *sql.DB, username string) (*User, error) {
     return &user, nil
 }
 
-func SaveUser(db *sql.DB, user *User) error {
-	_,err := db.Exec("INSERT INTO users (username, public_key, private_key) VALUES ($1, $2, $3)",user.Username,user.Password)
+func UsernameExist(username string) (bool, error) {
+    db := db.GetDB()
+    var count int
+    err:= db.QueryRow("SELECT COUNT(USERNAME) FROM USERS WHERE USERNAME=$1", username).Scan(&count)
+    if err != nil {
+        return false, err
+    }
+    if count > 0 {
+        return true, nil
+    } else {
+        return false, nil
+    }
+}
+
+func CreateUser(username string, password string) error {
+    db := db.GetDB()
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+    if err != nil {
+        return err
+    }
+
+	db.Exec("INSERT INTO users (username, password, isadmin) VALUES ($1, $2, false)",username, hashedPassword)
 	return err
 }
