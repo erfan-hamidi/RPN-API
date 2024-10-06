@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"RPN/cmd/models"
+	"RPN/cmd/services"
 	"RPN/cmd/utils"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 	
 
@@ -34,4 +37,27 @@ func Registration(c echo.Context) error {
         }
 	} 
 	return c.JSON(http.StatusCreated, "User registered successfully")
+}
+
+func Login(c echo.Context) error {
+	var user User
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid input")
+	}
+	//var usermodel models.User
+	usermodel,err := models.FindUserByUsername(user.Username)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, "Invalid username or password")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(usermodel.Password), []byte(user.Password)); err != nil {
+		return c.JSON(http.StatusUnauthorized, "Invalid username or password")
+	}
+	tokenString,err := services.GenerateJWT(user.Username)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Failed to generate token")
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": tokenString,
+	})
+
 }
