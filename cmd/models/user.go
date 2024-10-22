@@ -49,6 +49,6 @@ func CreateUser(username string, password string) error {
     if err != nil {
         return err
     }
-	db.Exec("INSERT INTO users (username, password, is_admin) VALUES ($1, $2, false)",username, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (username, password, is_admin) VALUES ($1, $2, false)",username, hashedPassword)
 	return err
 }
