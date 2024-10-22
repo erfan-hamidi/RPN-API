@@ -30,7 +30,7 @@ func main() {
 	db.Init()
 
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	//e.Use(middleware.Recover())
 	// e.Use(echojwt.WithConfig(echojwt.Config{
 	// 	// ...
 	// 	SigningKey:             []byte(services.JwtSecret),
@@ -42,7 +42,7 @@ func main() {
 	e.GET("/", accessible)
 
 	// Restricted group
-	r := e.Group("/restricted")
+	r := e.Group("/api")
 	config := echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(services.JwtCustomClaims)

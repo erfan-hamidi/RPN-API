@@ -18,9 +18,9 @@ type User struct {
 func FindUserByUsername(username string) (*User, error) {
     var user User
     db := db.GetDB()
-    row := db.QueryRow("SELECT * FROM users WHERE username=$1", username)
+    row := db.QueryRow("SELECT id, username, password FROM users WHERE username=$1", username)
     
-    err := row.Scan(&user.Username, &user.Password,)
+    err := row.Scan(&user.ID, &user.Username, &user.Password)
     
     if err != nil {
         return nil, err
@@ -49,7 +49,6 @@ func CreateUser(username string, password string) error {
     if err != nil {
         return err
     }
-
-	db.Exec("INSERT INTO users (username, password, isadmin) VALUES ($1, $2, false)",username, hashedPassword)
+	db.Exec("INSERT INTO users (username, password, is_admin) VALUES ($1, $2, false)",username, hashedPassword)
 	return err
 }

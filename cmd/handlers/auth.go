@@ -3,7 +3,7 @@ package handlers
 import (
 	"RPN/cmd/models"
 	"RPN/cmd/services"
-	"RPN/cmd/utils"
+	//"RPN/cmd/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -21,10 +21,10 @@ func Registration(c echo.Context) error {
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid input")
 	}
-
-	if !utils.ValidatePassword(user.Password) {
-		return c.JSON(http.StatusBadRequest, "password invalid")
-	}
+	print(user.Password)
+	// if !utils.ValidatePassword(user.Password) {
+	// 	return c.JSON(http.StatusBadRequest, "password invalid")
+	// }
 
 	userexist,err := models.UsernameExist(user.Username)
 	if err  != nil || userexist{
@@ -46,7 +46,8 @@ func Login(c echo.Context) error {
 	//var usermodel models.User
 	usermodel,err := models.FindUserByUsername(user.Username)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, "Invalid username or password")
+		print(err.Error())
+		return c.JSON(http.StatusUnauthorized, "Invalid username")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(usermodel.Password), []byte(user.Password)); err != nil {
 		return c.JSON(http.StatusUnauthorized, "Invalid username or password")
