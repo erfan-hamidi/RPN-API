@@ -25,3 +25,16 @@ func GetSubscription(userID int) (*Subscription, error) {
     }
     return &subcription, nil
 }
+
+func createSubscription(sub *Subscription) error {
+    db := db.GetDB()
+    query := `INSERT INTO subscriptions (user_id, capacity, remaining, expiry_date, is_active) 
+              VALUES ($1, $2, $3, $4, $5)`
+    
+    // Execute the SQL statement to insert the subscription
+    _, err := db.Exec(query, sub.UserID, sub.Capacity, sub.Remaining, sub.ExpiryDate, sub.IsActive)
+    if err != nil {
+        return err
+    }
+    return nil
+}
