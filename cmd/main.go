@@ -51,5 +51,6 @@ func main() {
 	}
 	r.Use(echojwt.WithConfig(config))
 	r.GET("", restricted)
+	r.POST("/rpn", handlers.EvaluateRPN)
 	e.Logger.Fatal(e.Start(":8000"))
 }
