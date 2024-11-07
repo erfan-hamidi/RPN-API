@@ -12,7 +12,7 @@ type RequestLog struct {
     RequestedAt time.Time 				// Timestamp of the request
 }
 
-func logRequest(userID int) error {
+func LogRequest(userID int) error {
     db := db.GetDB()
     query := `INSERT INTO request_logs (user_id, requested_at) VALUES ($1, $2)`
     _, err := db.Exec(query, userID, time.Now())
